@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kafka-deploy
+  name: kafka-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-deploy
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        network/kafka-network: "true"
+        app: kafka-deploy
+    spec:
+      enableServiceLinks: false
+      initContainers:
+      - name: check-zookeeper-server
+        image: busybox:latest
+        command: ['sh', '-c', 'until nc -vz $SERVICENAME $PORT; do echo "Waiting for zookeeper service"; sleep 2; done;']
+        env:
+          - name: SERVICENAME
+            value: zookeeper
+          - name: PORT
+            value: "2181"
+      volumes:
+      - hostPath:
+          path: /cluster-data/kafka-data
+          type: DirectoryOrCreate
+        name: kafka-data
+      containers:
+      - image: confluentinc/cp-kafka:7.0.1
+        name: kafka
+        ports:
+        - containerPort: 29092
+        - containerPort: 9092
+        volumeMounts: 
+        - name: kafka-data
+          mountPath: /var/lib/kafka
+        env:
+        - name: CONFLUENT_SUPPORT_CUSTOMER_ID
+          value: "anonymous"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "INTERNAL://kafka:29092,LISTENER_EXTERNAL://kafka:9092"
+        - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+          value: "true"
+        - name: KAFKA_BROKER_ID
+          value: "1"
+        - name: KAFKA_DEFAULT_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: "INTERNAL"
+        - name: KAFKA_LISTENERS
+          value: "INTERNAL://:29092,LISTENER_EXTERNAL://:9092"
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT"
+        - name: KAFKA_NUM_PARTITIONS
+          value: "1"
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_LOG_CLEANUP_POLICY
+          value: "compact"
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: "zookeeper:2181"
+        

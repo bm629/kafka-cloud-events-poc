@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: zookeeper-deploy
+  name: zookeeper
+spec:
+  ports:
+  - name: client
+    port: 2181
+    protocol: TCP
+    targetPort: 2181
+  - name: server
+    port: 2888
+    protocol: TCP
+    targetPort: 2888
+  - name: leader-election
+    port: 3888
+    protocol: TCP
+    targetPort: 3888
+  selector:
+    app: zookeeper-deploy

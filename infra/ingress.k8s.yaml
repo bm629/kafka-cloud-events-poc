@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myingress
+spec:
+  rules:
+  - host: kafka-ui.dev
+    http:
+      paths:
+      - backend:
+          service:
+            name: kafka-ui
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+  - host: kafka-producer.dev
+    http:
+      paths:
+      - backend:
+          service:
+            name: producer
+            port:
+              number: 3000
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer: {}

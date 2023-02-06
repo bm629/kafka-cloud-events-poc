@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kafka-ui-deploy
+  name: kafka-ui-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-ui-deploy
+  template:
+    metadata:
+      labels:
+        app: kafka-ui-deploy
+    spec:
+      initContainers:
+      - name: check-kafka-server
+        image: busybox:latest
+        command: ['sh', '-c', 'until nc -vz $SERVICENAME $PORT; do echo "Waiting for zookeeper service"; sleep 2; done;']
+        env:
+          - name: SERVICENAME
+            value: kafka
+          - name: PORT
+            value: "9092"
+      containers:
+      - image: provectuslabs/kafka-ui
+        name: kafka-ui
+        securityContext:
+          runAsUser: 0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KAFKA_CLUSTERS_0_NAME
+          value: kafka
+        - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+          value: "kafka:9092"

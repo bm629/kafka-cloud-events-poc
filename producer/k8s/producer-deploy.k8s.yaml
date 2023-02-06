@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: producer-deploy
+  name: producer-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer-deploy
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: producer-deploy
+    spec:
+      initContainers:
+      - name: check-kafka-server
+        image: busybox:latest
+        command: ['sh', '-c', 'until nc -vz $SERVICENAME $PORT; do echo "Waiting for zookeeper service"; sleep 2; done;']
+        env:
+          - name: SERVICENAME
+            value: kafka
+          - name: PORT
+            value: "9092"
+      containers:
+      - name: producer
+        image: bhushan629/producer
+        ports:
+          - containerPort: 3000
+        env:
+        - name: KAFKA_SERVER
+          value: 'kafka:9092'
