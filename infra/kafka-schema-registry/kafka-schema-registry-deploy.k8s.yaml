@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: producer-deploy
-  name: producer-deploy
+    app: kafka-schema-registry
+  name: kafka-schema-registry
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: producer-deploy
+      app: kafka-schema-registry
   strategy: {}
   template:
     metadata:
       labels:
-        app: producer-deploy
+        app: kafka-schema-registry
     spec:
       initContainers:
       - name: check-kafka-server
@@ -24,13 +24,17 @@ spec:
             value: kafka
           - name: PORT
             value: "9092"
+      enableServiceLinks: false
       containers:
-      - name: producer
-        image: bhushan629/producer
+      - image: confluentinc/cp-schema-registry:7.0.1
+        name: cp-schema-registry
         ports:
-          - containerPort: 3000
+        - containerPort: 30081
         env:
-        - name: KAFKA_SERVER
-          value: 'kafka:9092'
-        - name: KAFKA_SCHEMA_REGISTRY_URL
-          value: 'http://kafka-schema-registry:8081'
+        - name: SCHEMA_REGISTRY_HOST_NAME
+          value: "schema-registry"
+        - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+          value: "kafka:29092"
+        - name: SCHEMA_REGISTRY_LISTENERS
+          value: "http://0.0.0.0:30081"
+status: {}

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kafka-schema-registry-ui-deploy
+  name: kafka-schema-registry-ui-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-schema-registry-ui-deploy
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: kafka-schema-registry-ui-deploy
+    spec:
+      initContainers:
+      - name: check-kafka-schema-registry
+        image: busybox:latest
+        command: ['sh', '-c', 'until nc -vz $SERVICENAME $PORT; do echo "Waiting for zookeeper service"; sleep 2; done;']
+        env:
+          - name: SERVICENAME
+            value: kafka-schema-registry
+          - name: PORT
+            value: "8081"
+      containers:
+      - image: landoop/schema-registry-ui
+        name: schema-registry-ui
+        env:
+        - name: SCHEMAREGISTRY_URL
+          value: "https://kafka-schema.dev"
+status: {}

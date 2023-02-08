@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@kafkajs/confluent-schema-registry": "^3.3.0",
     "cloudevents": "^5.3.2",
     "cloudevents-kafka": "^0.2.1",
     "kafkajs": "^2.2.3",

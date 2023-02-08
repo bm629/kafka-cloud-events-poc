@@ -30,3 +30,5 @@ spec:
         env:
         - name: KAFKA_SERVER
           value: 'kafka:9092'
+        - name: KAFKA_SCHEMA_REGISTRY_URL
+          value: 'http://kafka-schema-registry:8081'

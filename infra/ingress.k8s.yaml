@@ -4,6 +4,26 @@ metadata:
   name: myingress
 spec:
   rules:
+  - host: kafka-schema-ui.dev
+    http:
+      paths:
+      - backend:
+          service:
+            name: kafka-schema-registry-ui
+            port:
+              number: 8000
+        path: /
+        pathType: Prefix
+  - host: kafka-schema.dev
+    http:
+      paths:
+      - backend:
+          service:
+            name: kafka-schema-registry
+            port:
+              number: 8081
+        path: /
+        pathType: Prefix
   - host: kafka-ui.dev
     http:
       paths:
